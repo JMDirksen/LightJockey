@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>LightJockey</title>
@@ -14,19 +15,46 @@
       }
     </style>
     <script>
+    
+      // https://developers.meethue.com/develop/get-started-2/
+      // http://philips-hue/debug/clip.html
+      
+      const huebridgehost = 'philips-hue';
+      const api = 'http://' + huebridgehost + '/api';
+      var apiuser = (localStorage.apiuser === undefined) ? '' : localStorage.apiuser;
+      
+      authCheck();
+
       window.addEventListener('load', (event) => {
         document.querySelectorAll('button').forEach((btn) => {
-          btn.addEventListener('mousedown', down);
-          btn.addEventListener('mouseup', up);
+          btn.addEventListener('mousedown', buttonevent);
+          btn.addEventListener('mouseup', buttonevent);
         })
       });
 
-      function up(e) {
-        console.log('Up! (%s)', e.target.id);
+      function buttonevent(e) {
+        console.log('%s %s', e.type, e.target.id);
       }
 
-      function down(e) {
-        console.log('Down! (%s)', e.target.id);
+      function getConfig() {
+        fetch('http://' + huebridgehost + '/api/0/config')
+          .then(response => response.json())
+          .then(data => config = data);
+      }
+      
+      function call(endpoint = '', method = 'GET', body = '') {
+        let callurl = api + '/' + apiuser + endpoint;
+        console.log('Calling: ' + callurl + ' ' + method + ' ' + body);
+        let init = {method:method,body:body};
+        return fetch(callurl, init).then(response => response.json())
+      }
+
+      function authCheck() {
+        call('', 'POST', '{"devicetype":"LightJockey"}')
+          .then(response => {
+            console.log(response);
+            if (response[0].error.type == 101 && confirm('Not linked with Hue Bridge\nPress the button on the Hue Bridge, then click OK')) authCheck();
+          });
       }
     </script>
   </head>
