@@ -22,6 +22,7 @@
       const huebridgehost = 'philips-hue';
       const api = 'http://' + huebridgehost + '/api';
       var apiuser = (localStorage.apiuser === undefined) ? '' : localStorage.apiuser;
+      var info;
       
       authCheck();
 
@@ -34,6 +35,14 @@
 
       function buttonevent(e) {
         console.log('%s %s', e.type, e.target.id);
+        if (e.target.id == 1) {
+          if (e.type == 'mousedown') {
+            call('/lights/9/state', 'PUT', '{"on":true}');
+          }
+          else {
+            call('/lights/9/state', 'PUT', '{"on":false}');
+          }
+        }
       }
    
       function call(endpoint = '', method = 'GET', body = '') {
@@ -48,6 +57,7 @@
       function authCheck() {
         call().then(response => {
           if (response.config) {
+            info = response;
             console.log('Connection to %s (%s) successful', response.config.name, response.config.bridgeid);
           }
           else {
