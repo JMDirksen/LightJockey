@@ -4,12 +4,12 @@
     <title>LightJockey</title>
     <style>
       body {
-        background-color: black;
+        background-color: gray;
       }
 
       button {
         background-color: white;
-        border:           none;
+        border:           dotted black;
         width:            50px;
         height:           50px;
       }
@@ -17,30 +17,63 @@
     <script>
     
       // https://developers.meethue.com/develop/get-started-2/
+      // https://developers.meethue.com/develop/hue-api/lights-api/
       // http://philips-hue/debug/clip.html
       
       const huebridgehost = 'philips-hue';
       const api = 'http://' + huebridgehost + '/api';
       var apiuser = (localStorage.apiuser === undefined) ? '' : localStorage.apiuser;
+      var button = [];
       var info;
       
       authCheck();
 
+      // On load
       window.addEventListener('load', (event) => {
+      
+        // Setup button event listeners
         document.querySelectorAll('button').forEach((btn) => {
           btn.addEventListener('mousedown', buttonevent);
           btn.addEventListener('mouseup', buttonevent);
-        })
+          btn.addEventListener('mouseleave', buttonevent);
+          btn.addEventListener('contextmenu', buttonevent);
+        });
+        
+        // Create button objects
+        for (i = 0; i < document.querySelectorAll('button').length; i++) {
+          button.push({'latch':false,'lightid':9,'params':{'on':true,'transitiontime':0,'bri':254,'hue':0,'sat':0,'effect':'none'}});
+        }
+        
       });
 
       function buttonevent(e) {
-        console.log('%s %s', e.type, e.target.id);
-        if (e.target.id == 1) {
-          if (e.type == 'mousedown') {
-            call('/lights/9/state', 'PUT', '{"on":true}');
+        // No context menu
+        if (e.type == 'contextmenu') e.preventDefault();
+        // Left down
+        if (e.type == 'mousedown' && e.which == 1) {
+          if (button[e.target.id].latch) button[e.target.id].params.on = !button[e.target.id].params.on;
+          else button[e.target.id].params.on = true;
+          call('/lights/' + button[e.target.id].lightid + '/state', 'PUT', JSON.stringify(button[e.target.id].params));
+        }
+        // Left other (up/leave)
+        else if (e.which == 1) {
+          if(!button[e.target.id].latch) {
+            button[e.target.id].params.on = false;
+            call('/lights/' + button[e.target.id].lightid + '/state', 'PUT', JSON.stringify(button[e.target.id].params));
+          }
+        }
+        // Right down (Latch / Unlatch)
+        else if (e.type == 'mousedown' && e.which == 3) {
+          button[e.target.id].latch = !button[e.target.id].latch;
+          if (button[e.target.id].latch) {
+            e.target.style.setProperty('border-style','solid');
           }
           else {
-            call('/lights/9/state', 'PUT', '{"on":false}');
+            if (button[e.target.id].params.on) {
+              button[e.target.id].params.on = false;
+              call('/lights/' + button[e.target.id].lightid + '/state', 'PUT', JSON.stringify(button[e.target.id].params));
+            }
+            e.target.style.setProperty('border-style','dotted');
           }
         }
       }
@@ -85,6 +118,7 @@
     </script>
   </head>
   <body>
+    <button id=0></button>
     <button id=1></button>
     <button id=2></button>
     <button id=3></button>
