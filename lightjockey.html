@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>LightJockey</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="manifest" href="manifest.json">
+		<link rel="stylesheet" href="lightjockey.css">
+		<script src="lightjockey.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td><button id="0"></button></td>
+				<td><button id="1"></button></td>
+				<td><button id="2"></button></td>
+				<td><button id="3"></button></td>
+			</tr>
+			<tr>
+				<td><a class="config" id="c0" onclick="document.getElementById('config').style.display = 'block';">#</a></td>
+				<td><a class="config" id="c1">#</a></td>
+				<td><a class="config" id="c2">#</a></td>
+				<td><a class="config" id="c3">#</a></td>
+			</tr>
+		</table>
+		<div id="config">
+			<table>
+				<tr>
+					<td>Light:</td><td><input type="text"></td>
+				</tr>
+				<tr>
+					<td>Color:</td>
+					<td>
+						<select>
+							<optgroup label="Color">
+								<option value="red">Red</option>
+								<option value="green">Green</option>
+								<option value="blue">Blue</option>
+							</optgroup>
+							<optgroup label="Effect">
+								<option value="colorloop">Colorloop</option>
+							</optgroup>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Latch:</td><td><input type="checkbox"></td>
+				</tr>
+				<tr><td><a class="config" onclick="document.getElementById('config').style.display = 'none';">OK</a></td><td></td></tr>
+			</table>
+		</div>
+	</body>
+</html>

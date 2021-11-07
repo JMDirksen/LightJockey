@@ -1,16 +1,14 @@
 {
-    "short_name": "LightJockey",
-    "name": "Light Jockey",
-    "icons": [
-      {
-        "src": "/icon-512.png",
-        "type": "image/png",
-        "sizes": "512x512"
-      }
-    ],
-    "start_url": "/",
-    "background_color": "whitesmoke",
-    "display": "standalone",
-    "scope": "/",
-    "theme_color": "whitesmoke"
-  }
+	"short_name": "LightJockey",
+	"name": "Light Jockey",
+	"icons": [{
+		"src": "/icon-512.png",
+		"type": "image/png",
+		"sizes": "512x512"
+	}],
+	"start_url": "/",
+	"background_color": "whitesmoke",
+	"display": "standalone",
+	"scope": "/",
+	"theme_color": "whitesmoke"
+}
