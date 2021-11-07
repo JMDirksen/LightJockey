@@ -2,125 +2,51 @@
 <html>
   <head>
     <title>LightJockey</title>
-    <style>
-      body {
-        background-color: gray;
-      }
-
-      button {
-        background-color: white;
-        border:           dotted black;
-        width:            50px;
-        height:           50px;
-      }
-    </style>
-    <script>
-    
-      // https://developers.meethue.com/develop/get-started-2/
-      // https://developers.meethue.com/develop/hue-api/lights-api/
-      // http://philips-hue/debug/clip.html
-      
-      const huebridgehost = 'philips-hue';
-      const api = 'http://' + huebridgehost + '/api';
-      var apiuser = (localStorage.apiuser === undefined) ? '' : localStorage.apiuser;
-      var button = [];
-      var info;
-      
-      authCheck();
-
-      // On load
-      window.addEventListener('load', (event) => {
-      
-        // Setup button event listeners
-        document.querySelectorAll('button').forEach((btn) => {
-          btn.addEventListener('mousedown', buttonevent);
-          btn.addEventListener('mouseup', buttonevent);
-          btn.addEventListener('mouseleave', buttonevent);
-          btn.addEventListener('contextmenu', buttonevent);
-        });
-        
-        // Create button objects
-        for (i = 0; i < document.querySelectorAll('button').length; i++) {
-          button.push({'latch':false,'lightid':9,'params':{'on':true,'transitiontime':0,'bri':254,'hue':0,'sat':0,'effect':'none'}});
-        }
-        
-      });
-
-      function buttonevent(e) {
-        // No context menu
-        if (e.type == 'contextmenu') e.preventDefault();
-        // Left down
-        if (e.type == 'mousedown' && e.which == 1) {
-          if (button[e.target.id].latch) button[e.target.id].params.on = !button[e.target.id].params.on;
-          else button[e.target.id].params.on = true;
-          call('/lights/' + button[e.target.id].lightid + '/state', 'PUT', JSON.stringify(button[e.target.id].params));
-        }
-        // Left other (up/leave)
-        else if (e.which == 1) {
-          if(!button[e.target.id].latch) {
-            button[e.target.id].params.on = false;
-            call('/lights/' + button[e.target.id].lightid + '/state', 'PUT', JSON.stringify(button[e.target.id].params));
-          }
-        }
-        // Right down (Latch / Unlatch)
-        else if (e.type == 'mousedown' && e.which == 3) {
-          button[e.target.id].latch = !button[e.target.id].latch;
-          if (button[e.target.id].latch) {
-            e.target.style.setProperty('border-style','solid');
-          }
-          else {
-            if (button[e.target.id].params.on) {
-              button[e.target.id].params.on = false;
-              call('/lights/' + button[e.target.id].lightid + '/state', 'PUT', JSON.stringify(button[e.target.id].params));
-            }
-            e.target.style.setProperty('border-style','dotted');
-          }
-        }
-      }
-   
-      function call(endpoint = '', method = 'GET', body = '') {
-        let init;
-        let callurl = api + '/' + apiuser + endpoint;
-        console.log('Calling: ' + callurl + ' ' + method + ' ' + body);
-        if (body) init = {method:method,body:body};
-        else init = {method:method};
-        return fetch(callurl, init).then(response => response.json())
-      }
-
-      function authCheck() {
-        call().then(response => {
-          if (response.config) {
-            info = response;
-            console.log('Connection to %s (%s) successful', response.config.name, response.config.bridgeid);
-          }
-          else {
-            call('', 'POST', '{"devicetype":"LightJockey"}')
-              .then(response => {
-                if (response[0]) {
-                  if (response[0].error) {
-                    if (response[0].error.type == 101) {
-                      if (confirm('Not linked with Hue Bridge\nPress the button on the Hue Bridge, then click OK')) authCheck();
-                    }
-                    else alert(response[0].error.description);
-                  }
-                  else if (response[0].success && response[0].success.username) {
-                    apiuser = localStorage.apiuser = response[0].success.username;
-                    authCheck();
-                  }
-                  else console.log(response);
-                }
-                else console.log(response);
-              });
-          }
-        });
-      }
-
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="lightjockey.css">
+    <script src="lightjockey.js"></script>
   </head>
   <body>
-    <button id=0></button>
-    <button id=1></button>
-    <button id=2></button>
-    <button id=3></button>
+    <table>
+      <tr>
+        <td><button id="0"></button></td>
+        <td><button id="1"></button></td>
+        <td><button id="2"></button></td>
+        <td><button id="3"></button></td>
+      </tr>
+      <tr>
+        <td><a class="config" id="c0" onclick="document.getElementById('config').style.display = 'block';">#</a></td>
+        <td><a class="config" id="c1">#</a></td>
+        <td><a class="config" id="c2">#</a></td>
+        <td><a class="config" id="c3">#</a></td>
+      </tr>
+    </table>
+    <div id="config">
+      <table>
+        <tr>
+          <td>Light:</td><td><input type="text"></td>
+        </tr>
+        <tr>
+          <td>Color:</td>
+          <td>
+            <select>
+              <optgroup label="Color">
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+              </optgroup>
+              <optgroup label="Effect">
+                <option value="colorloop">Colorloop</option>
+              </optgroup>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Latch:</td><td><input type="checkbox"></td>
+        </tr>
+        <tr><td><a class="config" onclick="document.getElementById('config').style.display = 'none';">OK</a></td><td></td></tr>
+      </table>
+    </div>
   </body>
 </html>
